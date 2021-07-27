@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maze/maze.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whereIsMyCheese/src/data/data.dart';
@@ -87,6 +88,7 @@ class _GamePageState extends State<GamePage> {
                       isCompleted = true;
                     });
                     setActiveLevel(level.level);
+                    HapticFeedback.vibrate();
                     showDialog(
                         context: context,
                         builder: (_) {
@@ -119,6 +121,7 @@ class _GamePageState extends State<GamePage> {
                   setState(() {
                     reachedCheckpoints += 1;
                   });
+                  HapticFeedback.vibrate();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Delicious!!!! 😍'),
