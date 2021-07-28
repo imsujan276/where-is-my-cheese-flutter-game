@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maze/maze.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whereIsMyCheese/src/data/data.dart';
-import 'package:whereIsMyCheese/src/models/levels.dart';
+import 'package:where_is_my_cheese/src/data/data.dart';
+import 'package:where_is_my_cheese/src/models/levels.dart';
+import 'package:where_is_my_cheese/src/utils/admob/banner_ad_widget.dart';
 
 class GamePage extends StatefulWidget {
   final int index;
@@ -137,8 +138,8 @@ class _GamePageState extends State<GamePage> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                color: Colors.grey,
-                height: 50,
+                child: AdmobBannerAdWidget(),
+                height: 75,
               ),
             ),
           ],

@@ -1,5 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:whereIsMyCheese/src/pages/levels_page.dart';
+import 'package:where_is_my_cheese/src/pages/levels_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -16,34 +17,21 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.blueGrey,
+          // image: DecorationImage(
+          //     image: AssetImage("assets/background.jpg"), fit: BoxFit.fill),
         ),
-        // image: DecorationImage(
-        //     image: AssetImage("assets/background.jpg"), fit: BoxFit.fill)),
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Text(
-            //   'Where is my \nCheese ?',
-            //   style: TextStyle(fontSize: 30, color: Colors.white),
-            // ),
             Spacer(),
             TopImage(),
-            SizedBox(
-              height: 30,
-            ),
+            SizedBox(height: 50),
             PlayButton(),
-            SizedBox(
-              height: 10,
-            ),
-
             SizedBox(height: 40),
-            LeaderboardWidget(),
-
-            SizedBox(
-              height: 20,
-            ),
+            SettingsWidget(),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -67,13 +55,13 @@ class _TopImageState extends State<TopImage>
   ///defining animation
   late Animation<double> animation;
   late AnimationController controller;
-  double width = 200;
-  bool _visibility = false;
 
+  double width = 225;
+  bool _visibility = false;
   double posX = 0;
+
   @override
   void initState() {
-    // TODO: implement initState
     controller = AnimationController(
       duration: const Duration(seconds: 5),
       vsync: this,
@@ -85,7 +73,6 @@ class _TopImageState extends State<TopImage>
       setState(() {
         posX++;
       });
-      print(posX);
       isEating();
     });
     controller.forward();
@@ -96,7 +83,6 @@ class _TopImageState extends State<TopImage>
   isEating() {
     if (posX == (width - 80)) {
       controller.stop();
-      //Timer(Duration(seconds:4,(){});
       setState(() {
         _visibility = false;
       });
@@ -112,44 +98,46 @@ class _TopImageState extends State<TopImage>
         children: [
           AnimatedOpacity(
               opacity: _visibility ? 0 : 1,
-              duration: const Duration(seconds: 5),
+              duration: const Duration(seconds: 3),
               child: Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 30),
+                    SizedBox(height: 75),
                     Text(
                       'Where is my cheese ?',
-                      style: TextStyle(
-                        color: Theme.of(context).backgroundColor,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headline5?.copyWith(
+                            color: Theme.of(context).backgroundColor,
+                            // fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [Mouse(), Cheese()],
-                    // )
                   ],
                 ),
               )),
           Positioned(
-              left: posX,
-              top: 0,
-              child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _visibility = true;
-                      posX = 0;
-                    });
-                    controller.repeat();
-                  },
-                  child: Mouse())),
+            left: posX,
+            top: 0,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _visibility = true;
+                  posX = 0;
+                });
+                controller.repeat();
+              },
+              child: Mouse(),
+            ),
+          ),
           Positioned(
-              left: width,
-              top: 0,
-              child: Visibility(visible: _visibility, child: Cheese())),
+            left: width,
+            top: 15,
+            child: Visibility(
+              visible: _visibility,
+              child: Cheese(),
+            ),
+          ),
         ],
       ),
     );
@@ -219,8 +207,6 @@ class _PlayButtonState extends State<PlayButton>
 
   @override
   void dispose() {
-    // TODO: implement dispose
-
     motionController.dispose();
     super.dispose();
   }
@@ -237,31 +223,66 @@ class _PlayButtonState extends State<PlayButton>
         );
       },
       child: Container(
-        height: MediaQuery.of(context).size.height * .2,
+        height: MediaQuery.of(context).size.height * .3,
         padding: EdgeInsets.all(4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(70),
         ),
-        child: Container(
-          child: CircleAvatar(
-            radius: size,
-            backgroundColor: Colors.orange.shade400.withOpacity(size / 40),
-            child: Icon(
-              Icons.play_circle_fill_rounded,
-              size: 40,
-              color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: size,
+              backgroundColor: Colors.orange.shade400.withOpacity(size / 40),
+              child: Icon(
+                Icons.play_circle_fill_rounded,
+                size: 40,
+                color: Colors.white,
+              ),
             ),
-          ),
+            SizedBox(height: 15),
+            Text(
+              "PLAY",
+              style: Theme.of(context).textTheme.headline5?.copyWith(
+                    color: Theme.of(context).backgroundColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class LeaderboardWidget extends StatelessWidget {
-  const LeaderboardWidget({
-    Key? key,
-  }) : super(key: key);
+class SettingsWidget extends StatefulWidget {
+  SettingsWidget({Key? key}) : super(key: key);
+
+  @override
+  _SettingsWidgetState createState() => _SettingsWidgetState();
+}
+
+class _SettingsWidgetState extends State<SettingsWidget> {
+  bool vibrationEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getPref();
+  }
+
+  togglePref() {
+    setState(() {
+      vibrationEnabled = !vibrationEnabled;
+    });
+  }
+
+  getPref() {
+    setState(() {
+      vibrationEnabled = vibrationEnabled;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -270,51 +291,19 @@ class LeaderboardWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Spacer(),
-        // CircleAvatar(
-        //   radius: 25,
-        //   backgroundColor: Colors.deepOrange.shade600,
-        //   child: CircleAvatar(
-        //       backgroundColor: Colors.orange,
-        //       child: Icon(
-        //         Icons.flag,
-        //         color: Colors.white,
-        //       )),
-        // ),
-        // SizedBox(width: 20),
-        // CircleAvatar(
-        //   radius: 25,
-        //   backgroundColor: Colors.deepOrange.shade600,
-        //   child: CircleAvatar(
-        //       backgroundColor: Colors.orange,
-        //       child: Icon(
-        //         Icons.leaderboard_outlined,
-        //         color: Colors.white,
-        //       )),
-        // ),
-        // SizedBox(width: 20),
-        // CircleAvatar(
-        //   radius: 25,
-        //   backgroundColor: Colors.deepOrange.shade600,
-        //   child: CircleAvatar(
-        //       backgroundColor: Colors.orange,
-        //       child: Icon(
-        //         Icons.shopping_cart_rounded,
-        //         color: Colors.white,
-        //       )),
-        // ),
-        Spacer(),
-        Container(
-          padding: EdgeInsets.all(3),
-          decoration: BoxDecoration(
-              color: Colors.orange, borderRadius: BorderRadius.circular(30)),
-          child: Icon(
-            Icons.settings,
-            color: Colors.white,
+        GestureDetector(
+          onTap: () => togglePref(),
+          child: Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                color: Colors.orange, borderRadius: BorderRadius.circular(30)),
+            child: Icon(
+              vibrationEnabled ? Icons.settings : Icons.settings_outlined,
+              color: Colors.white,
+            ),
           ),
         ),
-        SizedBox(
-          width: 10,
-        )
+        SizedBox(width: 16)
       ],
     );
   }

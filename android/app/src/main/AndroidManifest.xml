@@ -8,6 +8,12 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="Where Is My Cheese?"
         android:icon="@mipmap/launcher_icon">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9000154121468885~6921988920"/>
+
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

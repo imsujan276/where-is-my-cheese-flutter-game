@@ -1,5 +1,5 @@
 import 'package:maze/maze.dart';
-import 'package:whereIsMyCheese/src/models/levels.dart';
+import 'package:where_is_my_cheese/src/models/levels.dart';
 
 final MazeItem bean = MazeItem('assets/beans.png', ImageType.asset);
 final MazeItem corn = MazeItem('assets/corn.png', ImageType.asset);

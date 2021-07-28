@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whereIsMyCheese/src/data/data.dart';
+import 'package:where_is_my_cheese/src/data/data.dart';
+import 'package:where_is_my_cheese/src/utils/admob/banner_ad_widget.dart';
 
 import 'game_page.dart';
+
+const int maxFailedLoadAttempts = 3;
 
 class LevelsPage extends StatefulWidget {
   LevelsPage({Key? key}) : super(key: key);
@@ -14,6 +18,13 @@ class LevelsPage extends StatefulWidget {
 class _LevelsPageState extends State<LevelsPage> {
   int currentLevel = 1;
 
+  InterstitialAd? _interstitialAd;
+  static final AdRequest request = AdRequest(
+    keywords: <String>['game', 'maze', 'fun', 'arcade', 'mind'],
+    nonPersonalizedAds: true,
+  );
+  int _numInterstitialLoadAttempts = 3;
+
   @override
   void initState() {
     super.initState();
@@ -21,6 +32,7 @@ class _LevelsPageState extends State<LevelsPage> {
   }
 
   init() async {
+    _createInterstitialAd();
     final prefs = await SharedPreferences.getInstance();
     final int _currentLevel = prefs.getInt('currentLevel') ?? 1;
     setState(() {
@@ -34,16 +46,65 @@ class _LevelsPageState extends State<LevelsPage> {
     init();
   }
 
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: "ca-app-pub-9000154121468885/2107456574",
+      request: request,
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          print('$ad loaded');
+          _interstitialAd = ad;
+          _numInterstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('InterstitialAd failed to load: $error.');
+          _numInterstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_numInterstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd!.show();
+    _interstitialAd = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
@@ -95,9 +156,15 @@ class _LevelsPageState extends State<LevelsPage> {
                   ),
                 ],
               ),
-              Expanded(child: buildLevels(currentLevel)),
-            ],
-          ),
+            ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: buildLevels(currentLevel),
+              ),
+            ),
+            AdmobBannerAdWidget()
+          ],
         ),
       ),
     );
@@ -126,6 +193,7 @@ class _LevelsPageState extends State<LevelsPage> {
   Widget buildAvailableLevel(int index) {
     return GestureDetector(
       onTap: () async {
+        _showInterstitialAd();
         bool? isCompleted = await Navigator.push(
           context,
           MaterialPageRoute(
