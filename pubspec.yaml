@@ -1,7 +1,7 @@
 name: where_is_my_cheese
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -16,15 +16,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.9.0
-  shared_preferences: ^2.0.6
+  flutter_launcher_icons: any
+  shared_preferences: any
 
 # flutter pub run flutter_launcher_icons:main    
 flutter_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/rat.png"
+  image_path: "assets/appicon.png"
 
 flutter:
   uses-material-design: true
