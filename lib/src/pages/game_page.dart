@@ -46,103 +46,112 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  color: Theme.of(context).primaryColor,
-                  margin: EdgeInsets.all(16),
-                  child: IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(
-                          context,
-                          isCompleted,
-                        );
-                      }),
-                ),
-                Text(
-                  "Maze ${level.level}",
-                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                        fontSize: 22,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Maze(
-                player: MazeItem('assets/rat.png', ImageType.asset),
-                columns: level.row,
-                rows: level.column,
-                wallThickness: 2.0,
-                wallColor: Theme.of(context).primaryColor,
-                finish: MazeItem('assets/cheese.png', ImageType.asset),
-                checkpoints: level.checkpoints,
-                onFinish: () {
-                  if (level.checkpoints.length == reachedCheckpoints) {
-                    setState(() {
-                      isCompleted = true;
-                    });
-                    setActiveLevel(level.level);
-                    HapticFeedback.vibrate();
-                    showDialog(
-                        context: context,
-                        builder: (_) {
-                          return AlertDialog(
-                            title: Text("Yummmm!!! 😍"),
-                            content: Text("That was delicious... 🤤"),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pop(context, true);
-                                },
-                                child: Text("Get More Cheese"),
-                              ),
-                            ],
+      body: WillPopScope(
+        onWillPop: () {
+          if (isCompleted) {
+            setActiveLevel(level.level);
+          }
+          return Future.value(isCompleted);
+        },
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    color: Theme.of(context).primaryColor,
+                    margin: EdgeInsets.all(16),
+                    child: IconButton(
+                        icon: Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.pop(
+                            context,
+                            isCompleted,
                           );
-                        });
-                  } else {
+                        }),
+                  ),
+                  Text(
+                    "Maze ${level.level}",
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          fontSize: 22,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Maze(
+                  player: MazeItem('assets/rat.png', ImageType.asset),
+                  columns: level.row,
+                  rows: level.column,
+                  wallThickness: 2.0,
+                  wallColor: Theme.of(context).primaryColor,
+                  finish: MazeItem('assets/cheese.png', ImageType.asset),
+                  checkpoints: level.checkpoints,
+                  onFinish: () {
+                    if (level.checkpoints.length == reachedCheckpoints) {
+                      setState(() {
+                        isCompleted = true;
+                      });
+                      setActiveLevel(level.level);
+                      HapticFeedback.heavyImpact();
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) {
+                            return AlertDialog(
+                              title: Text("Yummmm!!! 😍"),
+                              content: Text("That was delicious... 🤤"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context, true);
+                                  },
+                                  child: Text("Get More Cheese"),
+                                ),
+                              ],
+                            );
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Collect all foods before the DELICIOUS CHEESE. It is your desert'),
+                          duration: Duration(seconds: 3),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  onCheckpoint: (checkointIndex) {
+                    setState(() {
+                      reachedCheckpoints += 1;
+                    });
+                    HapticFeedback.heavyImpact();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            'Collect all foods before the DELICIOUS CHEESE. It is your desert'),
+                        content: Text('Delicious!!!! 😍'),
                         duration: Duration(seconds: 3),
                         behavior: SnackBarBehavior.floating,
+                        backgroundColor: Theme.of(context).primaryColor,
                       ),
                     );
-                  }
-                },
-                onCheckpoint: (checkointIndex) {
-                  setState(() {
-                    reachedCheckpoints += 1;
-                  });
-                  HapticFeedback.vibrate();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Delicious!!!! 😍'),
-                      duration: Duration(seconds: 3),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Theme.of(context).primaryColor,
-                    ),
-                  );
-                },
-                height: size.height - 50,
+                  },
+                  height: size.height - 50,
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                child: AdmobBannerAdWidget(),
-                height: 75,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  child: AdmobBannerAdWidget(),
+                  height: 75,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
